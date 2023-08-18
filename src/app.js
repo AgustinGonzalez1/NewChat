@@ -24,7 +24,7 @@ app.set("view engine", "handlebars");
 
 app.use("/", chatRouter);
 
-mongoose.connect("mongodb+srv://Agusdev:admin1@cluster0.7utl1xo.mongodb.net/databaseprueba?retryWrites=true&w=majority");
+mongoose.connect("mongodb+srv://Agusdev:*****@cluster0.7utl1xo.mongodb.net/databaseprueba?retryWrites=true&w=majority");
 
 socketServer.on("connection", async (socket) => {
 	socket.on("newUser", async (data) => {
