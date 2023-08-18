@@ -24,7 +24,7 @@ app.set("view engine", "handlebars");
 
 app.use("/", chatRouter);
 
-mongoose.connect("mongodb+srv://Agusdev:*****@cluster0.7utl1xo.mongodb.net/databaseprueba?retryWrites=true&w=majority");
+mongoose.connect("mongodb+srv://Agusdev:admin1@cluster0.7utl1xo.mongodb.net/databaseprueba?retryWrites=true&w=majority");
 
 socketServer.on("connection", async (socket) => {
 	socket.on("newUser", async (data) => {
@@ -41,6 +41,16 @@ socketServer.on("connection", async (socket) => {
 				mensaje: data1,
 				nombre: data,
 			});
+
+			await messageModel.create(newMessage);
+
+			const mensajes = await messageModel.find();
+
+			socketServer.emit("messageEmit", mensajes);
+		});
+
+		socket.on("disconnect", async () => {
+			const newMessage = new messageModel({ mensaje: `${data} se ha desconectado`, nombre: `servidor` });
 
 			await messageModel.create(newMessage);
 
