@@ -32,12 +32,12 @@ const enviarMensaje = (e) => {
 
 $btnEnviar.addEventListener("click", enviarMensaje);
 
-socket.on("messageEmit", (data) => {
+socket.on("messageEmit", async (data) => {
 	$listaMensajes.innerHTML = "";
 
-	const mensajes = data.slice(-10);
+	const mensajes = await data.slice(-10);
 
-	mensajes.forEach((element) => {
+	await mensajes.forEach((element) => {
 		$listaMensajes.innerHTML += `<p>${element.nombre}: ${element.mensaje}</p>`;
 	});
 });

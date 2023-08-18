@@ -3,6 +3,8 @@ import { __dirname, PORT } from "./utils.js";
 import handlebars from "express-handlebars";
 import { Server } from "socket.io";
 import chatRouter from "./routes/chatRouter.js";
+import mongoose from "mongoose";
+import { messageModel } from "./models/messages.model.js";
 
 const app = express();
 
@@ -22,31 +24,33 @@ app.set("view engine", "handlebars");
 
 app.use("/", chatRouter);
 
-const mensajes = [];
+mongoose.connect("mongodb+srv://Agusdev:admin1@cluster0.7utl1xo.mongodb.net/databaseprueba?retryWrites=true&w=majority");
 
-const generarId = () => {
-	return mensajes.length + 1;
-};
+socketServer.on("connection", async (socket) => {
+	socket.on("newUser", async (data) => {
+		const newMessage = new messageModel({ mensaje: `${data} se ha conectado`, nombre: `servidor` });
 
-socketServer.on("connection", (socket) => {
-	socket.on("newUser", (data) => {
-		mensajes.push({
-			id: generarId(),
-			mensaje: `${data} se ha conectado`,
-			nombre: "Servidor",
-		});
+		await messageModel.create(newMessage);
 
-		socket.on("message", (data1) => {
-			mensajes.push({
-				id: generarId(),
+		const mensajes = await messageModel.find();
+
+		socketServer.emit("messageEmit", mensajes);
+
+		socket.on("message", async (data1) => {
+			const newMessage = new messageModel({
 				mensaje: data1,
 				nombre: data,
 			});
+
+			await messageModel.create(newMessage);
+
+			const mensajes = await messageModel.find();
+
 			socketServer.emit("messageEmit", mensajes);
 		});
-
-		socketServer.emit("messageEmit", mensajes);
 	});
+
+	const mensajes = await messageModel.find();
 
 	socketServer.emit("messageEmit", mensajes);
 });
